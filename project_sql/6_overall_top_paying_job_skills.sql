@@ -1,27 +1,28 @@
 /*
- Question: What skills are required for the top-paying overall tech jobs?
- - Use the top 10 highest-paying jobs from first query
- but do not include the data analyst filter
- - Add the specific skills required for these roles
- - Why? It provides detaild look at which skills to develop that alighn with top salaries
- */
---Create CTE
+PURPOSE:Identify which technical skills are most valuable by linking them to top salaries
+This helps professionals prioritize skill development for maximum earning potential
+*/
+
+-- First, create a list of jobs ranked by salary within each job title category
 WITH ranked_jobs AS (
     SELECT 
         job_title,
         salary_year_avg,
         company_dim.name AS company_name,
-        -- Rank jobs by salary within each job title group
+        -- Critical Window Function:
+        -- For each unique job title (PARTITION BY), rank all postings by salary
+        -- Assigns rank=1 to the highest paying instance of each job title
         ROW_NUMBER() OVER (PARTITION BY job_title ORDER BY salary_year_avg DESC) as rank
     FROM 
         job_postings_fact
+    -- Include company names for context (LEFT JOIN preserves all jobs even if company info missing)
     LEFT JOIN 
         company_dim ON job_postings_fact.company_id = company_dim.company_id
     WHERE 
-        job_location = 'Anywhere'
-        AND salary_year_avg IS NOT NULL
+        salary_year_avg IS NOT NULL  -- Only jobs with salary data
 )
 
+-- Final output showing only the highest-paying example of each job title
 SELECT 
     job_title,
     salary_year_avg,
@@ -29,7 +30,7 @@ SELECT
 FROM 
     ranked_jobs
 WHERE 
-    rank = 1  -- Only select the highest paying for each job title
+    rank = 1  -- Filter to only keep the top-paying example for each job title
 ORDER BY 
-    salary_year_avg DESC
-LIMIT 10;
+    salary_year_avg DESC  -- Show highest salaries first
+LIMIT 10;  -- Return a manageable number of results for analysis

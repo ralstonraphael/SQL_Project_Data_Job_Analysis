@@ -1,21 +1,27 @@
 /*
-Quesiton: What are the top paying skills based off salary?
-- Look at the acerage salary associated with each skill for data analysis
-- Focuses on role with specified salaries.
-Why? It reveals how different skills impact salary levels
+GOAL: Identifying High-Value Skills for Data Analysts
+PURPOSE: Reveal which technical skills correlate with highest salaries
+Business Value: Helps professionals prioritize skill development for maximum earning potential
 */
 
 SELECT
-    skills,
-    ROUND(AVG(salary_year_avg), 2) AS avg_salary
-FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+    skills_dim.skills AS skill_name,  -- Clean naming for readability
+    ROUND(AVG(salary_year_avg), 0) AS average_salary  -- Rounded to whole dollars
+FROM 
+    job_postings_fact
+/* Connection Path:
+   1. Jobs → Skills (through bridge table)
+   2. Skills IDs → Skill Names */
+INNER JOIN skills_job_dim 
+    ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim 
+    ON skills_job_dim.skill_id = skills_dim.skill_id
 WHERE
-    job_title_short = 'Data Analyst'
-    AND salary_year_avg IS NOT NULL
-GROUP BY
-    skills
-ORDER BY
-    avg_salary DESC
-LIMIT 25
+    job_title_short = 'Data Analyst'  -- Focused role filter
+    AND salary_year_avg IS NOT NULL   -- Only positions with salary data
+    AND salary_year_avg > 0           -- Additional data quality check
+GROUP BY 
+    skills_dim.skills
+ORDER BY 
+    average_salary DESC               -- Show highest-paying skills first
+LIMIT 25;                            -- Top 25 results
