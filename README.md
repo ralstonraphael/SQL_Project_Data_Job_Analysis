@@ -7,7 +7,7 @@ SQL queries? Check them out here: [queries](/project_sql/queries/)
 The data analytics field has experienced tremendous growth in recent years, with organizations across all sectors recognizing the value of data-driven decision making.
 ## Key Questions Answered
 
-1. What are the highest-paying Data Analyst jobs?
+1. What are the highest-paying Remote Data Analyst jobs?
 2. What skills do top-paying Data Analyst roles require?
 3. Which skills are most in-demand for Data Analysts?
 4. Which skills correlate with the highest salaries?
@@ -27,7 +27,7 @@ Data was gathered from Luke Barousse [DataNerd](https://datanerd.tech/) app that
 # The Analysis
 Each query in this project targets a distinct dimension of the data analyst job market. Here's the methodology behind each investigation:
 
-### 1. Top Paying Data Analyst Jobs
+### 1. Top Paying Remote Data Analyst Jobs
 I filtered the job postings dataset for remote Data Analyst roles with valid salary data, then performed a LEFT JOIN with company information to preserve all matching records. The results were sorted by descending annual salary and limited to the top 10 highest-paying positions, extracting key fields including job details, compensation, and employer information.
 
 ```sql
@@ -52,6 +52,7 @@ ORDER BY
     salary_year_avg DESC                  -- Show highest salaries first
 LIMIT 10;                                 -- Top 10 most lucrative opportunities
 ```
+![Alt text](<project_sql/assets/Avg_salary_visualization (1).png>)
 #### Salary Range
 | Metric | Value | Example |
 |--------|-------|---------|
