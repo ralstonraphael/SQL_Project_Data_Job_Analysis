@@ -53,6 +53,7 @@ ORDER BY
 LIMIT 10;                                 -- Top 10 most lucrative opportunities
 ```
 ![Alt text](<project_sql/assets/Avg_salary_visualization (1).png>)
+*Bar graph visualizing the average salary distribution for the highest paying data analyst jobs in 2023*
 #### Salary Range
 | Metric | Value | Example |
 |--------|-------|---------|
@@ -69,6 +70,69 @@ LIMIT 10;                                 -- Top 10 most lucrative opportunities
 
 #### Notable Titles
 - Director-level roles dominate top salaries  
-- "Principal Data Analyst" appears twice (SmartAsset, Motional)  
+- "Principal Data Analyst" appears twice (SmartAsset, Motional)
+### 2. What skills do top-paying Data Analyst roles require?
+Using a CTE to isolate top-paying roles and subsequent joins with skills tables, this query maps salary benchmarks to specific technical requirements, showing the direct relationship between compensation and skill demand in data analytics
+
+```sql
+-- First, create a temporary result set of the top 10 highest-paying Data Analyst jobs
+WITH top_paying_jobs AS (
+    SELECT
+        job_id,               -- Unique identifier for each job posting
+        job_title,            -- Official job title
+        salary_year_avg,      -- Annual salary figure (our key metric)
+        name AS company_name  -- Company offering the position
+    FROM
+        job_postings_fact
+    -- Include company names while preserving all job postings (LEFT JOIN)
+    LEFT JOIN company_dim 
+        ON job_postings_fact.company_id = company_dim.company_id
+    WHERE
+        job_title_short = 'Data Analyst' AND  -- Focus exclusively on Data Analyst roles
+        job_location = 'Anywhere' AND         -- Remote positions only
+        salary_year_avg IS NOT NULL           -- Ensure salary data exists
+    ORDER BY
+        salary_year_avg DESC                  -- Rank by salary (highest first)
+    LIMIT 10                                  -- Get the top 10 highest-paying
+)
+
+-- Main query: Retrieve skills associated with these top-paying jobs
+SELECT 
+    top_paying_jobs.*,        -- Include all columns from our CTE
+    skills_dim.skills         -- Add the actual skill names
+FROM 
+    top_paying_jobs
+-- Connect to skills through two joins:
+-- 1. Link jobs to skill IDs (via the junction table)
+INNER JOIN skills_job_dim 
+    ON top_paying_jobs.job_id = skills_job_dim.job_id
+-- 2. Map skill IDs to human-readable skill names
+INNER JOIN skills_dim 
+    ON skills_job_dim.skill_id = skills_dim.skill_id
+-- Final presentation order (highest salary first)
+ORDER BY
+    salary_year_avg DESC;
+```
+![Alt text](project_sql/assets/SalaryPerSkill.png)
+*Bar graph showing the averagee salary of the most frequent skills in 2023.*
+#### Most Valuable Skills
+| Skill | Frequency in Top Roles | Example High-Paying Role |
+|-------|------------------------|--------------------------|
+| SQL | 8/10 roles | Principal Data Analyst ($205K) |
+| Python | 7/10 roles | Data Analyst, Marketing ($232K) |
+| Tableau | 5/10 roles | Director, Data Analyst ($189K) |
+
+#### Emerging Skill Patterns
+| Skill Category | Representative Skills | Salary Correlation |
+|----------------|-----------------------|--------------------|
+| Cloud Technologies | Snowflake, AWS, Azure | $186K-$255K |
+| Data Science Libraries | Pandas, NumPy, PySpark | $186K-$255K |
+| Version Control | Git, GitLab, Bitbucket | $186K-$205K |
+
+#### Skill Combinations
+- **Highest Value Pair**: Python + SQL (appears in 6/10 top roles)
+- **Specialized Stack**: Tableau + Power BI + Snowflake ($189K-$255K)
+- **Full-Stack Analyst**: SQL + Python + Tableau + Cloud ($186K-$255K)
+
 # What I Learned
 # Conclusion
