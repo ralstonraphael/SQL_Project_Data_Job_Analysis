@@ -181,8 +181,8 @@ FROM raw_counts
 ORDER BY demand_count DESC
 LIMIT 7;
 ```
-
-*Insert Visualization*
+![Alt text](project_sql/assets/Top_skills_Percent.png)
+*Bubble chart showing the top 7 skills that show up the most frequently in job postings, as well as the percentage of times they show up in 2023.*
 
 #### Key Insights  
 - **SQL is Essential**: SQL appears in **47.12%** of Data Analyst job postings, making it the most critical skill. Its standardized frequency (1.0) sets the benchmark for all other skills.  
