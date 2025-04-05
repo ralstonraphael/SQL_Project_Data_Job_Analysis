@@ -10,9 +10,8 @@ The data analytics field has experienced tremendous growth in recent years, with
 1. What are the highest-paying Remote Data Analyst jobs?
 2. What skills do top-paying Data Analyst roles require?
 3. Which skills are most in-demand for Data Analysts?
-4. Which skills correlate with the highest salaries?
-5. What skills offer both high demand and high salary potential?
-6. What are the salary benchmarks for different Data Analyst roles?
+4. What skills offer both high demand and high salary potential?
+5. What are the salary benchmarks for different Data Analyst roles?
 
 Data was gathered from Luke Barousse [DataNerd](https://datanerd.tech/) app that includes a large ammount of data from real data related job postings.
 # 🛠️ Tools I Used
