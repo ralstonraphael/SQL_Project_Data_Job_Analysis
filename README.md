@@ -10,8 +10,7 @@ The data analytics field has experienced tremendous growth in recent years, with
 1. What are the highest-paying Remote Data Analyst jobs?
 2. What skills do top-paying Data Analyst roles require?
 3. Which skills are most in-demand for Data Analysts?
-4. What skills offer both high demand and high salary potential?
-5. What are the salary benchmarks for different Data Analyst roles?
+4. What are the salary benchmarks for different Data Analyst job postings?
 
 Data was gathered from Luke Barousse [DataNerd](https://datanerd.tech/) app that includes a large ammount of data from real data related job postings.
 # 🛠️ Tools I Used
@@ -23,10 +22,10 @@ Data was gathered from Luke Barousse [DataNerd](https://datanerd.tech/) app that
 | **Tableau**    | Allowed me to visualize key insights for better understanding. |
 | **pgAdmin**    | Administered the database. |
 | **Git & GitHub** | Managed version control and collaboration throughout the project. |
-# The Analysis
+# 📈 The Analysis
 Each query in this project targets a distinct dimension of the data analyst job market. Here's the methodology behind each investigation:
 
-### 1. Top Paying Remote Data Analyst Jobs
+### **1. Top Paying Remote Data Analyst Jobs**
 I filtered the job postings dataset for remote Data Analyst roles with valid salary data, then performed a LEFT JOIN with company information to preserve all matching records. The results were sorted by descending annual salary and limited to the top 10 highest-paying positions, extracting key fields including job details, compensation, and employer information.
 
 ```sql
@@ -70,7 +69,7 @@ LIMIT 10;                                 -- Top 10 most lucrative opportunities
 #### Notable Titles
 - Director-level roles dominate top salaries  
 - "Principal Data Analyst" appears twice (SmartAsset, Motional)
-### 2. What skills do top-paying Data Analyst roles require?
+### **2. What skills do top-paying Data Analyst roles require?**
 Using a CTE to isolate top-paying roles and subsequent joins with skills tables, this query maps salary benchmarks to specific technical requirements, showing the direct relationship between compensation and skill demand in data analytics
 
 ```sql
@@ -132,7 +131,7 @@ ORDER BY
 - **Highest Value Pair**: Python + SQL (appears in 6/10 top roles)
 - **Specialized Stack**: Tableau + Power BI + Snowflake ($189K-$255K)
 - **Full-Stack Analyst**: SQL + Python + Tableau + Cloud ($186K-$255K)
-### 3. Which Skills are most in demand for Data Analysts?
+### **3. Which Skills are most in demand for Data Analysts?**
 This query identifies and ranks the most in-demand skills for Data Analyst positions by: counting how often each skill appears in job postings, calculating its frequency as a percentage of all Data Analyst jobs, and standardizing the results on a 0-1 scale where 1 represents the most frequently required skill. It joins job posting data with skill information through bridge tables, filters for Data Analyst roles only, and returns the top 7 skills ordered by demand. The output provides both raw counts and normalized metrics to objectively compare skill importance.
 
 ```sql
@@ -188,6 +187,87 @@ LIMIT 7;
 - **SQL is Essential**: SQL appears in **47.12%** of Data Analyst job postings, making it the most critical skill. Its standardized frequency (1.0) sets the benchmark for all other skills.  
 - **Specialization Gap**: While Python (29.16%) and Tableau (23.68%) are common, niche skills like SAS (14.28%) and R (15.30%) appear in fewer roles, highlighting optional vs. core competencies.  
 
+### **4. What are the salary benchmarks for different Data Analyst job postings?**
+This query identifies the highest-paying job postings by using a window function to rank salaries within each job title category, then filtering to show only the top-paying example for each role. The goal was to surface salary benchmarks across different Data Analyst positions to understand compensation potential in the field.
+```sql
+-- First, create a list of jobs ranked by salary within each job title category
+WITH ranked_jobs AS (
+    SELECT 
+        job_title,
+        salary_year_avg,
+        company_dim.name AS company_name,
+        -- Critical Window Function:
+        -- For each unique job title (PARTITION BY), rank all postings by salary
+        -- Assigns rank=1 to the highest paying instance of each job title
+        ROW_NUMBER() OVER (PARTITION BY job_title ORDER BY salary_year_avg DESC) as rank
+    FROM 
+        job_postings_fact
+    -- Include company names for context (LEFT JOIN preserves all jobs even if company info missing)
+    LEFT JOIN 
+        company_dim ON job_postings_fact.company_id = company_dim.company_id
+    WHERE 
+        salary_year_avg IS NOT NULL  -- Only jobs with salary data
+)
 
-# What I Learned
-# Conclusion
+-- Final output showing only the highest-paying example of each job title
+SELECT 
+    job_title,
+    salary_year_avg,
+    company_name
+FROM 
+    ranked_jobs
+WHERE 
+    rank = 1  -- Filter to only keep the top-paying example for each job title
+ORDER BY 
+    salary_year_avg DESC  -- Show highest salaries first
+LIMIT 10;  -- Return a manageable number of results for analysis
+```
+![Alt text](<project_sql/assets/Highest Paying Data Analyst Roles (1).png>)
+*Treemap showing the highest paying Data Analyst Job Postings in 2023*
+
+**Key Findings from Highest-Paying Data Jobs**:
+
+1. **Salary Range**:
+   - **Highest**: $960,000 (Data Scientist at East River Electric)
+   - **Lowest**: $450,000 (Data Engineer at Netflix)
+   - **Median**: ~$525,000 (for top 10 roles)
+
+2. **Title Patterns**:
+   - Senior/Staff/VP-level roles command premium salaries
+   - "Data Scientist" appears 3x in top 10 (vs 1 "Data Analyst")
+
+3. **Industry Insights**:
+   - Energy (East River Electric) and Tech (Netflix, WhatsApp) dominate
+   - Staffing firms (Selby Jennings, Durlston) broker high-paying contracts
+
+**Top 5 Roles by Salary**:
+
+| Job Title                                | Salary      | Company                          |
+|------------------------------------------|-------------|----------------------------------|
+| Data Scientist                           | $960,000    | East River Electric Power Co.    |
+| Senior Data Scientist                    | $890,000    | MSP Staffing LTD                 |
+| Data Analyst                             | $650,000    | Mantys                           |
+| GIS Analyst                              | $585,000    | ReServe                          |
+| Staff Data Scientist/Quant Researcher    | $550,000    | Selby Jennings                   |
+
+**Notable Observations**:
+- The single "Data Analyst" role (#3) pays **$650K** (Mantys) - likely an outlier requiring rare specialization  
+- Netflix appears twice for different specialties (Games/Member Product) at identical $450K salaries  
+- Titles with "Staff" or "Senior" modifiers average **$655K** vs base titles' **$537K**  
+# 🎓 What I Learned (Besides That Data Analysts Love Coffee)
+This project provided valuable insights into the data analyst job market and skill requirements:
+
+1. **SQL is Fundamental**  
+   Appearing in 47% of job postings, SQL proved to be the most essential skill for data analysts. This finding reinforced the importance of mastering database querying.
+
+2. **Job Titles Don't Tell the Full Story**  
+   The $650K Data Analyst position at Mantys demonstrated that compensation often reflects specialized skill requirements rather than just title seniority.
+
+3. **Cloud Skills Command Premium Salaries**  
+   Proficiency in Snowflake, AWS, and Azure correlated with 20% higher average salaries, highlighting the growing importance of cloud technologies.
+
+4. **Effective Visualization Creates Impact**  
+   The process revealed how strategic data visualization transforms complex findings into actionable business insights.
+
+# 🤔 Project Reflection
+This analysis deepened my understanding of the data analyst job market while strengthening my technical skills. Examining real-world job posting data helped me identify the most valuable competencies in the field. Writing queries to uncover hidden information made em feel liek a detective solving a case. The project also improved my ability to extract meaningful patterns from complex datasets and present findings clearly. These analytical and communication skills will be valuable assets in any data-focused role

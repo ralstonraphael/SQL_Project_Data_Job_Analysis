@@ -1,6 +1,5 @@
 /*
-PURPOSE:Identify which technical skills are most valuable by linking them to top salaries
-This helps professionals prioritize skill development for maximum earning potential
+PURPOSE:Identify which job postings pay the most.
 */
 
 -- First, create a list of jobs ranked by salary within each job title category
